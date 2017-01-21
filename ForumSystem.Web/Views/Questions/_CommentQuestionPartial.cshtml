@@ -1,0 +1,8 @@
+﻿@using ForumSystem.Web.InputModels.Questions
+@model CommentQuestionInputModel
+@using (Ajax.BeginForm("CommentQuestion", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.InsertAfter, UpdateTargetId = "question-comments" }))
+{
+    @Html.HiddenFor(m => m.PostId);
+    @Html.TextBoxFor(m => m.CommentContent);
+    <input type="submit" class="btn-default" value="Comment" />
+}
