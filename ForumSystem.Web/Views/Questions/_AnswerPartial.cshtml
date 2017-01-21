@@ -1,8 +1,0 @@
-﻿@model ForumSystem.Web.InputModels.Questions.AnswerInputModel
-<hr />
-@using (Ajax.BeginForm("Answer", new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.InsertAfter, UpdateTargetId = "answers" }))
-{
-    @Html.HiddenFor(m => m.PostId)
-    @Html.TextAreaFor(m => m.Content)
-    <input type="submit" class="btn-default" />
-}
