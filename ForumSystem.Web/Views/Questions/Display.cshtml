@@ -1,0 +1,120 @@
+﻿@using ForumSystem.Web.InputModels.Questions;
+@model ForumSystem.Web.ViewModels.Questions.QuestionDisplayViewModel
+@{
+    ViewBag.Title = "Display";
+}
+<h1>Question id: @Model.Question.Id</h1>
+<div class="row">
+    <div class="row">
+        <h1>@Model.Question.Title</h1>
+    </div>
+    <div class="row">
+        @Html.Raw(Model.Question.Content)
+    </div>
+    <div class="row text-right">
+        <div class="row">
+            Votes: <span id="question-votes">@Model.Question.VoteCount</span>
+            @if (User.Identity.IsAuthenticated && Model.Question.UserCanVote)
+            {
+                @Ajax.ActionLink("Vote",
+                   "Vote",
+                   new { id = Model.Question.Id },
+                   new AjaxOptions
+                   {
+                       HttpMethod = "POST",
+                       InsertionMode = InsertionMode.Replace,
+                       OnSuccess = "hideVoteButton",
+                       OnFailure = "failedToVote",
+                       UpdateTargetId = "question-votes",
+                   },
+                   new
+                   {
+                       @class = "btn btn-success btn-sm",
+                       id = "votes-button"
+                   });
+            }
+        </div>
+        <div class="row">
+            Asked by @Model.Question.UserName
+        </div>
+        <div class="row">
+            <div class="text-right">
+                Asked <time datetime="@Model.Question.CreatedOn.ToUniversalTime().ToString("o")" class="timeago">@Model.Question.CreatedOn</time>
+            </div>
+        </div>
+    </div>
+    <div class="row small">
+        @if (Model.Question.Comments != null)
+        {
+            <div id="question-comments">
+                @foreach (var comment in Model.Question.Comments)
+                {
+                    Html.RenderPartial("_DisplayCommentsPartial", comment);
+                }
+            </div>
+        }
+        <div class="row text-right">
+            @if (User.Identity.IsAuthenticated)
+            {
+                Html.RenderPartial("_CommentQuestionPartial", new CommentQuestionInputModel(Model.Question.Id));
+            }
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <span class="badge" id="answers-count">
+        @Model.Answers.Count() Answers
+    </span>
+    @if (Model.Answers != null)
+    {
+        <div id="answer-comments">
+            @foreach (var answer in Model.Answers)
+            {
+                Html.RenderPartial("_DisplayAnswersPartial", answer);
+                <div class="row text-right">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        Html.RenderPartial("_CommentAnswerPartial", new CommentAnswerInputModel(answer.Id));
+                    }
+                </div>
+                <hr />
+            }
+        </div>
+    }
+</div>
+
+<div class="row">
+    @if (User.Identity.IsAuthenticated)
+    {
+        Html.RenderPartial("_AnswerPartial", new AnswerInputModel(Model.Question.Id));
+    }
+</div>
+
+@section tinymce
+{
+    <script src="~/Scripts/tinymce/tinymce.js"></script>
+    <script type="text/javascript">
+        tinymce.init({
+            selector: '#Content'
+        });
+    </script>
+}
+
+@section scripts
+{
+    <script src="~/Scripts/jquery.timeago.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            jQuery("time.timeago").timeago();
+        });
+
+        function hideVoteButton() {
+            $('#votes-button').hide();
+        }
+
+        function failedToVote() {
+            alert('Voting failed for some reason...');
+        }
+    </script>
+}
